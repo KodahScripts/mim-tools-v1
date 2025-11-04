@@ -1,14 +1,14 @@
 <template>
   <div v-if="!hasData">
     <input :id="id" type="file" accept=".xlsx, .xls" @change="handleUpload" />
-    <label :for="id" class="btn btn-secondary">Upload {{ id }}</label>
+    <label :for="id" class="btn btn-secondary">UPLOAD {{ idString }}</label>
   </div>
   <div v-else>
-    <button @click="handleClear" class="btn btn-secondary">Clear {{ id }}</button>
+    <button @click="handleClear" class="btn btn-secondary">CLEAR {{ idString }}</button>
   </div>
 </template>
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { read, utils } from 'xlsx'
 
 const props = defineProps<{
@@ -16,6 +16,10 @@ const props = defineProps<{
 }>()
 
 const hasData = ref(false)
+
+const idString = computed(() => {
+  return props.id.toUpperCase().replace('-', ' ')
+})
 
 const emit = defineEmits(['fileData', 'clearData'])
 

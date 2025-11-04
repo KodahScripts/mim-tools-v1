@@ -1,7 +1,10 @@
 <template>
   <div class="card">
     <div class="card-header">
-      <SwitchStoreButton />
+      <div class="d-flex gap-4 justify-content-between align-middle">
+        <CurrentStoreDisplay />
+        <SwitchStoreButton />
+      </div>
     </div>
     <div class="card-body">
       <p class="row fw-bold">
@@ -22,12 +25,13 @@
 
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-import { useUtaStore } from '@/stores/uta'
+import { useGlobalStore } from '@/stores/global'
 
 import SwitchStoreButton from '../global/SwitchStoreButton.vue'
+import CurrentStoreDisplay from './CurrentStoreDisplay.vue'
 
-const utaStore = useUtaStore()
-const { accounts } = storeToRefs(utaStore)
+const store = useGlobalStore()
+const { accounts } = storeToRefs(store)
 </script>
 
 <style scoped></style>
