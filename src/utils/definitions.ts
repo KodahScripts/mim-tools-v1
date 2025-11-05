@@ -21,16 +21,6 @@ interface UploadReport {
   [ref: string]: UploadRow[]
 }
 
-enum COLUMN {
-  DATE = 1,
-  CHECK_NUMBER = 4,
-  TOTAL_AMOUNT = 6,
-  MERCHANT = 7,
-  NAME = 8,
-  RESPONSE = 15,
-  CONTROL = 21,
-}
-
 interface Accounts {
   vari: string
   fixed: string
@@ -41,4 +31,13 @@ interface Account {
   [store: string]: Accounts
 }
 
-export type { Accounts, Account, COLUMN, UploadReport }
+interface UTADepositRow {
+  date: string
+  chk: string
+  total: string
+  merch: string
+  resp: string
+  ctrl: string
+}
+
+export type { Accounts, Account, UploadReport, UTADepositRow }

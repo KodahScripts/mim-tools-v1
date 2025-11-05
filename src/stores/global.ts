@@ -27,5 +27,16 @@ export const useGlobalStore = defineStore('global', () => {
     selectedStore.value = storeAbbr
   }
 
-  return { selectedStore, accounts, changeStore }
+  function getMerchantType(merchantCode: string) {
+    const id = merchantCode.slice(-2)
+    if (id === '00') {
+      return { code: 'V', acct: accounts.value?.vari }
+    }
+    if (id === '02') {
+      return { code: 'F', acct: accounts.value?.fixed }
+    }
+    return { code: 'H', acct: accounts.value?.vari }
+  }
+
+  return { selectedStore, accounts, changeStore, getMerchantType }
 })

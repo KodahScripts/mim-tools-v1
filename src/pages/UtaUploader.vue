@@ -15,22 +15,73 @@
         <AccountDisplay />
       </div>
     </div>
+    <div class="card mt-4 text-center" v-if="UtaRawData">
+      <div class="card-header ps-5 pe-5">
+        <div class="row fw-bold">
+          <div class="col">DATE</div>
+          <div class="col">CHECK #</div>
+          <div class="col">AMOUNT</div>
+          <div class="col">ACCOUNT</div>
+          <div class="col">STATUS</div>
+          <div class="col">REFERENCE #</div>
+        </div>
+      </div>
+      <div class="card-body ps-5 pe-5">
+        <div
+          class="row pt-2 pb-2 line-item mb-2"
+          v-for="(row, index) in UtaData"
+          :class="{ shaded: index % 2 === 0 }"
+        >
+          <div class="col">{{ row.date }}</div>
+          <div class="col">{{ row.chk }}</div>
+          <div class="col">{{ row.total }}</div>
+          <div class="col">{{ row.merch.acct }}</div>
+          <div class="col">{{ row.resp }}</div>
+          <div class="col">{{ row.ctrl }}</div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, type Ref } from 'vue'
+import { storeToRefs } from 'pinia'
+import { useUtaStore } from '@/stores/uta'
 
 import AccountDisplay from '@/components/uta-uploader/AccountDisplay.vue'
 import UploadXlButton from '@/components/global/UploadXlButton.vue'
 
-const reportData: Ref<JSON | null> = ref(null)
+const store = useUtaStore()
+const { UtaRawData, UtaData } = storeToRefs(store)
 
-function handleUpload(data: JSON) {
-  reportData.value = data
+function handleUpload(data: Array<string | number | boolean>[]) {
+  UtaRawData.value = data
 }
 
 function handleClear() {
-  reportData.value = null
+  UtaRawData.value = null
 }
 </script>
+
+<style scoped>
+.line-item {
+  border-radius: 1rem;
+  border: 1px solid #ccc;
+}
+/* 
+.line-item::before {
+  content: '[X]';
+  position: relative;
+  top: 0;
+  left: 1rem;
+} */
+
+.line-item:hover {
+  background-color: #c1cfde;
+  cursor: pointer;
+}
+
+.shaded {
+  background-color: #dfeaf5;
+}
+</style>

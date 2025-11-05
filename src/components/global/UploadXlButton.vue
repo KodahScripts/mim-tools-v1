@@ -1,10 +1,10 @@
 <template>
   <div v-if="!hasData">
     <input :id="id" type="file" accept=".xlsx, .xls" @change="handleUpload" />
-    <label :for="id" class="btn btn-secondary">UPLOAD {{ idString }}</label>
+    <label :for="id" class="btn btn-info">UPLOAD {{ idString }}</label>
   </div>
   <div v-else>
-    <button @click="handleClear" class="btn btn-secondary">CLEAR {{ idString }}</button>
+    <button @click="handleClear" class="btn btn-danger">CLEAR {{ idString }}</button>
   </div>
 </template>
 <script setup lang="ts">
