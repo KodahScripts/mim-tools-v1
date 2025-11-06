@@ -2,6 +2,7 @@ import { ref, computed, type Ref } from 'vue'
 import { defineStore } from 'pinia'
 import { useGlobalStore } from './global'
 import { convertDate } from '@/utils/xlFunctions'
+import type { UTADepositRow } from '@/utils/definitions'
 
 enum COLUMN {
   DATE = 1,
@@ -15,7 +16,7 @@ enum COLUMN {
 export const useUtaStore = defineStore('uta', () => {
   const globalStore = useGlobalStore()
   const { getMerchantType } = globalStore
-  const UtaRawData: Ref<Array<string | number | boolean>[] | null> = ref(null)
+  const UtaRawData: Ref<Array<string | number | boolean>[] | null | undefined> = ref(null)
 
   const UtaData = computed(() => {
     if (UtaRawData.value) {
@@ -38,5 +39,19 @@ export const useUtaStore = defineStore('uta', () => {
     return null
   })
 
-  return { UtaRawData, UtaData }
+  function changeCtrl(uid: string, newCtrl: string) {
+    const index = uid.split('-')[1]
+    if (UtaRawData.value != undefined) {
+      if (index != undefined && index != null) {
+        UtaRawData.value[index][COLUMN.CONTROL] = newCtrl
+      }
+    }
+  }
+
+  function removeRow(uid: string) {
+    const index = uid.split('-')[1]
+    if (UtaRawData) UtaRawData.value?.splice(Number(index), 1)
+  }
+
+  return { UtaRawData, UtaData, changeCtrl, removeRow }
 })

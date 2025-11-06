@@ -24,6 +24,7 @@
           <div class="col">ACCOUNT</div>
           <div class="col">STATUS</div>
           <div class="col">REFERENCE #</div>
+          <div class="col-1"></div>
         </div>
       </div>
       <div class="card-body ps-5 pe-5">
@@ -37,7 +38,10 @@
           <div class="col">{{ row.total }}</div>
           <div class="col">{{ row.merch.acct }}</div>
           <div class="col">{{ row.resp }}</div>
-          <div class="col">{{ row.ctrl }}</div>
+          <div class="col"><EditInput :id="row.uid" :previousValue="row.ctrl" /></div>
+          <div class="col-1">
+            <small class="btn btn-danger btn-sm" @click="removeRow(row.uid)">X</small>
+          </div>
         </div>
       </div>
     </div>
@@ -50,9 +54,11 @@ import { useUtaStore } from '@/stores/uta'
 
 import AccountDisplay from '@/components/uta-uploader/AccountDisplay.vue'
 import UploadXlButton from '@/components/global/UploadXlButton.vue'
+import EditInput from '@/components/global/EditInput.vue'
 
 const store = useUtaStore()
 const { UtaRawData, UtaData } = storeToRefs(store)
+const { removeRow } = store
 
 function handleUpload(data: Array<string | number | boolean>[]) {
   UtaRawData.value = data
