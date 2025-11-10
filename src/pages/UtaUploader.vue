@@ -44,6 +44,9 @@
           </div>
         </div>
       </div>
+      <div class="card-footer">
+        <div class="btn btn-info" @click="buildSheet">DOWNLOAD</div>
+      </div>
     </div>
   </div>
 </template>
@@ -58,7 +61,7 @@ import EditInput from '@/components/global/EditInput.vue'
 
 const store = useUtaStore()
 const { UtaRawData, UtaData } = storeToRefs(store)
-const { removeRow } = store
+const { removeRow, buildSheet } = store
 
 function handleUpload(data: Array<string | number | boolean>[]) {
   UtaRawData.value = data

@@ -8,4 +8,3 @@ export function convertDate(excelDateValue: number) {
   const year = date_info.getFullYear().toString().slice(-2)
   return `${month}${day}${year}`
 }
-

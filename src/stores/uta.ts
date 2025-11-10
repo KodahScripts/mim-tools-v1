@@ -1,8 +1,8 @@
 import { ref, computed, type Ref } from 'vue'
 import { defineStore } from 'pinia'
+import { utils, write, writeFile } from 'xlsx'
 import { useGlobalStore } from './global'
 import { convertDate } from '@/utils/xlFunctions'
-import type { UTADepositRow } from '@/utils/definitions'
 
 enum COLUMN {
   DATE = 1,
@@ -53,5 +53,26 @@ export const useUtaStore = defineStore('uta', () => {
     if (UtaRawData) UtaRawData.value?.splice(Number(index), 1)
   }
 
-  return { UtaRawData, UtaData, changeCtrl, removeRow }
+  function buildSheet() {
+    let refStr = ''
+    const data = UtaData.value != null ? UtaData.value : []
+    const sheet = utils.json_to_sheet(
+      data.map((row) => {
+        refStr = `UTA${row.date}${row.merch.code}`
+        return {
+          reference_number: refStr,
+          receipt_number: refStr,
+          g_l_account: row.merch.acct,
+          amount: row.total,
+          control: row.ctrl,
+          description: refStr,
+        }
+      }),
+    )
+    const book = utils.book_new()
+    utils.book_append_sheet(book, sheet, refStr)
+    writeFile(book, `${refStr}.csv`)
+  }
+
+  return { UtaRawData, UtaData, changeCtrl, removeRow, buildSheet }
 })
