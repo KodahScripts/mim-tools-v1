@@ -13,6 +13,19 @@ enum COLUMN {
   CONTROL = 21,
 }
 
+interface UploadRow {
+  reference_number: string
+  receipt_number: string
+  g_l_account: string | undefined
+  amount: string
+  control: string
+  description: string
+}
+
+interface UploadSheet {
+  [name: string]: UploadRow[]
+}
+
 export const useUtaStore = defineStore('uta', () => {
   const globalStore = useGlobalStore()
   const { getMerchantType } = globalStore
@@ -56,8 +69,11 @@ export const useUtaStore = defineStore('uta', () => {
   function buildSheet() {
     let refStr = ''
     const data = UtaData.value != null ? UtaData.value : []
-    const sheet = utils.json_to_sheet(
-      data.map((row) => {
+    const sheets: UploadSheet = {}
+    const book = utils.book_new()
+
+    data
+      .map((row) => {
         refStr = `UTA${row.date}${row.merch.code}`
         return {
           reference_number: refStr,
@@ -67,11 +83,22 @@ export const useUtaStore = defineStore('uta', () => {
           control: row.ctrl,
           description: refStr,
         }
-      }),
-    )
-    const book = utils.book_new()
-    utils.book_append_sheet(book, sheet, refStr)
-    writeFile(book, `${refStr}.csv`)
+      })
+      .forEach((row) => {
+        if (sheets[row.reference_number]) {
+          sheets[row.reference_number]?.push(row)
+        } else {
+          sheets[row.reference_number] = [row]
+        }
+      })
+
+    Object.keys(sheets).forEach((sheetName) => {
+      if (sheets[sheetName]) {
+        const sheet = utils.json_to_sheet(sheets[sheetName])
+        utils.book_append_sheet(book, sheet, sheetName)
+      }
+    })
+    writeFile(book, 'UTA.xlsx')
   }
 
   return { UtaRawData, UtaData, changeCtrl, removeRow, buildSheet }
