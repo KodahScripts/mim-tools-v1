@@ -16,6 +16,11 @@ const ACCT: Account = {
   },
 }
 
+export interface Merchant {
+  code: string
+  acct: string | undefined
+}
+
 export const useGlobalStore = defineStore('global', () => {
   const selectedStore = ref('BMWT')
 

@@ -1,7 +1,7 @@
 import { ref, computed, type Ref } from 'vue'
-import { defineStore } from 'pinia'
-import { utils, write, writeFile } from 'xlsx'
-import { useGlobalStore } from './global'
+import { defineStore, storeToRefs } from 'pinia'
+import { utils, writeFile } from 'xlsx'
+import { useGlobalStore, type Merchant } from './global'
 import { convertDate } from '@/utils/xlFunctions'
 
 enum COLUMN {
@@ -14,12 +14,13 @@ enum COLUMN {
 }
 
 interface UploadRow {
-  reference_number: string
-  receipt_number: string
-  g_l_account: string | undefined
-  amount: string
-  control: string
-  description: string
+  uid: string
+  date: string
+  chk: string
+  total: string
+  merch: Merchant
+  resp: string
+  ctrl: string
 }
 
 interface UploadSheet {
@@ -28,8 +29,17 @@ interface UploadSheet {
 
 export const useUtaStore = defineStore('uta', () => {
   const globalStore = useGlobalStore()
+  const { selectedStore } = storeToRefs(globalStore)
   const { getMerchantType } = globalStore
   const UtaRawData: Ref<Array<string | number | boolean>[] | null | undefined> = ref(null)
+
+  const today = computed(() => {
+    const todaysDate: Date = new Date()
+    let [month, day, year] = todaysDate.toLocaleDateString().split('/')
+    if (Number(month) < 10) month = `0${month}`
+    if (Number(day) < 10) day = `0${day}`
+    return [month, day, year?.slice(-2)].join('')
+  })
 
   const UtaData = computed(() => {
     if (UtaRawData.value) {
@@ -52,8 +62,22 @@ export const useUtaStore = defineStore('uta', () => {
     return null
   })
 
+  const AllSheets = computed(() => {
+    const sheets: UploadSheet = {}
+
+    UtaData.value?.forEach((row) => {
+      const refStr = `UTA${row.date}${row.merch.code}`
+      if (sheets[refStr]) {
+        sheets[refStr]?.push(row)
+      } else {
+        sheets[refStr] = [row]
+      }
+    })
+    return sheets
+  })
+
   function changeCtrl(uid: string, newCtrl: string) {
-    const index = uid.split('-')[1]
+    const index = Number(uid.split('-')[1])
     if (UtaRawData.value != undefined) {
       if (index != undefined && index != null) {
         UtaRawData.value[index][COLUMN.CONTROL] = newCtrl
@@ -62,44 +86,25 @@ export const useUtaStore = defineStore('uta', () => {
   }
 
   function removeRow(uid: string) {
-    const index = uid.split('-')[1]
-    if (UtaRawData) UtaRawData.value?.splice(Number(index), 1)
+    const index = Number(uid.split('-')[1])
+    UtaRawData.value?.slice(index, 1)
+  }
+
+  function removeSheet(sheetName: string) {
+    console.log(sheetName)
   }
 
   function buildSheet() {
-    let refStr = ''
-    const data = UtaData.value != null ? UtaData.value : []
-    const sheets: UploadSheet = {}
-    const book = utils.book_new()
-
-    data
-      .map((row) => {
-        refStr = `UTA${row.date}${row.merch.code}`
-        return {
-          reference_number: refStr,
-          receipt_number: refStr,
-          g_l_account: row.merch.acct,
-          amount: row.total,
-          control: row.ctrl,
-          description: refStr,
-        }
-      })
-      .forEach((row) => {
-        if (sheets[row.reference_number]) {
-          sheets[row.reference_number]?.push(row)
-        } else {
-          sheets[row.reference_number] = [row]
-        }
-      })
-
+    const sheets = AllSheets.value
     Object.keys(sheets).forEach((sheetName) => {
+      const book = utils.book_new()
       if (sheets[sheetName]) {
         const sheet = utils.json_to_sheet(sheets[sheetName])
         utils.book_append_sheet(book, sheet, sheetName)
       }
+      writeFile(book, `${selectedStore.value}_UTA_${sheetName}.csv`)
     })
-    writeFile(book, 'UTA.xlsx')
   }
 
-  return { UtaRawData, UtaData, changeCtrl, removeRow, buildSheet }
+  return { UtaRawData, UtaData, today, AllSheets, changeCtrl, removeRow, removeSheet, buildSheet }
 })
