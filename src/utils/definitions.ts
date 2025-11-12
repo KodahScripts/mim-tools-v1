@@ -1,4 +1,4 @@
-export const UPLOADHEADER = [
+const UPLOADHEADER = [
   'Reference #',
   'Receipt #',
   'G/L Account',
@@ -7,18 +7,23 @@ export const UPLOADHEADER = [
   'Description',
 ]
 
-interface UploadRow {
-  reference: string // UTA091625(V,F,H)
-  receipt: string // UTA091625(V,F,H)
-  glAccount: number // 3225 || 3304
-  amount: number // Total Trans Amount
-  control: string // RO Num || Cust Num
-  description: string // CHK #
-  found: boolean
+enum UTA_COLUMN {
+  DATE = 1,
+  CHECK_NUMBER = 4,
+  TOTAL_AMOUNT = 6,
+  MERCHANT = 7,
+  RESPONSE = 15,
+  CONTROL = 21,
 }
 
-interface UploadReport {
-  [ref: string]: UploadRow[]
+interface UploadRow {
+  reference: string
+  receipt: string
+  glAccount: number
+  amount: number
+  control: string
+  description: string
+  found: boolean
 }
 
 interface Accounts {
@@ -31,13 +36,24 @@ interface Account {
   [store: string]: Accounts
 }
 
+interface Merchant {
+  code: string
+  acct: string | undefined
+}
+
 interface UTADepositRow {
+  uid: string
   date: string
   chk: string
   total: string
-  merch: string
+  merch: Merchant
   resp: string
   ctrl: string
 }
 
-export type { Accounts, Account, UploadReport, UTADepositRow }
+interface UploadSheet {
+  [name: string]: UTADepositRow[]
+}
+
+export type { Accounts, Account, UTADepositRow, UploadRow, UploadSheet, Merchant }
+export { UPLOADHEADER, UTA_COLUMN }
