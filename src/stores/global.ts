@@ -38,5 +38,13 @@ export const useGlobalStore = defineStore('global', () => {
     return { code: 'H', acct: accounts.value?.vari }
   }
 
-  return { selectedStore, accounts, changeStore, getMerchantType }
+  function createReceiptNumber(numberOfDigits: number) {
+    const numberArr = []
+    while (numberArr.length < numberOfDigits) {
+      numberArr.push(Math.floor(Math.random() * 10))
+    }
+    return Number(numberArr.join(''))
+  }
+
+  return { selectedStore, accounts, changeStore, getMerchantType, createReceiptNumber }
 })

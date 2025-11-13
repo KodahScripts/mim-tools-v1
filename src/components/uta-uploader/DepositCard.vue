@@ -1,10 +1,20 @@
 <template>
   <div class="card mt-4 text-center">
     <div class="card-header ps-5 pe-5">
-      <div class="d-flex justify-content-center p-2 fs-5 fw-bold">
+      <div class="row p-2 fs-5 fw-bold">
         <div class="col text-start">{{ sheetName }}</div>
         <div class="col-1 text-end">
-          <small class="btn btn-sm rounded-circle" @click="deleteSheet(sheetName)">X</small>
+          <div class="row">
+            <small
+              class="btn col text-success"
+              v-if="sheetName.endsWith('-DEL')"
+              @click="undoDeleteSheet(sheetName)"
+              ><Restore
+            /></small>
+            <small class="btn col text-danger" @click="deleteSheet(sheetName)">
+              <FileDocumentRemoveOutline />
+            </small>
+          </div>
         </div>
       </div>
     </div>
@@ -34,7 +44,18 @@
           </template>
         </ValDisplayVert>
         <div class="col-1 align-self-center">
-          <small class="btn btn-danger btn-sm rounded-circle" @click="deleteRow(row.uid)">X</small>
+          <div class="row">
+            <div
+              v-if="row.flag.delete"
+              class="btn text-success col"
+              @click="undoDeleteRow(row.uid)"
+            >
+              <Restore />
+            </div>
+            <div class="btn text-danger col" @click="deleteRow(row.uid)">
+              <Delete />
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -46,12 +67,15 @@ import { computed } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useUtaStore } from '@/stores/uta'
 
+import Delete from 'vue-material-design-icons/Delete.vue'
+import Restore from 'vue-material-design-icons/Restore.vue'
+import FileDocumentRemoveOutline from 'vue-material-design-icons/FileDocumentRemoveOutline.vue'
 import ValDisplayVert from '../global/ValDisplayVert.vue'
 import EditInput from '../global/EditInput.vue'
 
 const store = useUtaStore()
 const { AllSheets } = storeToRefs(store)
-const { deleteSheet, deleteRow } = store
+const { deleteSheet, deleteRow, undoDeleteRow, undoDeleteSheet } = store
 const props = defineProps<{
   sheetName: string
 }>()
@@ -63,14 +87,12 @@ const rows = computed(() => {
 
 <style scoped>
 .line-item {
-  align: center;
   border-radius: 1rem;
   border: 1px solid #ccc;
 }
 
 .line-item:hover {
   background-color: #c1cfde;
-  cursor: pointer;
 }
 
 .shaded {

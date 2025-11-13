@@ -40,6 +40,10 @@ interface Merchant {
   acct: string | undefined
 }
 
+interface Flags {
+  delete: boolean
+}
+
 interface UTADepositRow {
   uid: string
   date: string
@@ -48,6 +52,7 @@ interface UTADepositRow {
   merch: Merchant
   resp: string
   ctrl: string
+  flag: Flags
 }
 
 interface UploadSheet {

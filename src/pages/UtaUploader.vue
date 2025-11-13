@@ -18,9 +18,9 @@
         <AccountDisplay />
       </div>
     </div>
-    <div class="row">
+    <div class="row mb-5">
       <div
-        class="mb-5 col-lg-6"
+        class="col-lg-6"
         v-if="UtaRawData"
         v-for="sheetName in Object.keys(AllSheets)"
         :key="sheetName"
@@ -53,6 +53,7 @@ function handleUpload(data: Array<string | number | boolean>[]) {
   UtaRawData.value = data.slice(1).map((row, index) => {
     const date = convertDate(Number(row[UTA_COLUMN.DATE]))
     const merch = getMerchantType(String(row[UTA_COLUMN.MERCHANT]))
+    const flag = { delete: false }
     return {
       uid: `UTA-${index}`,
       date,
@@ -64,6 +65,7 @@ function handleUpload(data: Array<string | number | boolean>[]) {
         String(row[UTA_COLUMN.CONTROL]).length > 6
           ? String(row[UTA_COLUMN.CONTROL]).slice(-6)
           : String(row[UTA_COLUMN.CONTROL]),
+      flag,
     }
   })
 }

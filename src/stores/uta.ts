@@ -2,11 +2,12 @@ import { ref, computed, type Ref } from 'vue'
 import { defineStore, storeToRefs } from 'pinia'
 import { utils, writeFile } from 'xlsx'
 import { useGlobalStore } from './global'
-import { type UTADepositRow, type UploadSheet } from '@/utils/definitions'
+import type { UTADepositRow, UploadSheet } from '@/utils/definitions'
 
 export const useUtaStore = defineStore('uta', () => {
   const globalStore = useGlobalStore()
   const { selectedStore } = storeToRefs(globalStore)
+  const { createReceiptNumber } = globalStore
 
   const UtaRawData: Ref<UTADepositRow[] | null> = ref(null)
 
@@ -18,16 +19,15 @@ export const useUtaStore = defineStore('uta', () => {
         let refStr = `UTA${row.date}${row.merch.code}`
         if (row.resp === 'DENIED') refStr += '-DEN'
         if (row.resp === 'REFERRAL') refStr += '-REF'
-        if (row.resp === 'DELETED') refStr += '-DEL'
+        if (row.flag.delete) refStr += '-DEL'
         if (sheets[refStr]) {
-          sheets[refStr].push(row)
+          sheets[refStr]?.push(row)
         } else {
           sheets[refStr] = [row]
         }
       })
 
-      const keys = Object.keys(sheets)
-      keys.sort()
+      const keys = Object.keys(sheets).sort()
 
       keys.forEach((key) => {
         sortedSheets[key] = sheets[key]
@@ -50,16 +50,41 @@ export const useUtaStore = defineStore('uta', () => {
   function deleteRow(uid: string) {
     const row = getRow(uid)
     if (row) {
-      row.resp = 'DELETED'
+      if (row.flag.delete) {
+        removeRow(uid)
+      } else {
+        row.flag.delete = true
+      }
+    }
+  }
+
+  function undoDeleteRow(uid: string) {
+    const row = getRow(uid)
+    if (row) {
+      row.flag.delete = false
     }
   }
 
   function deleteSheet(sheetName: string) {
+    if (sheetName.endsWith('-DEL')) {
+      removeSheet(sheetName)
+    } else {
+      const sheet = AllSheets.value[sheetName]
+      sheet?.forEach((deposit) => {
+        const row = getRow(deposit.uid)
+        if (row) {
+          row.flag.delete = true
+        }
+      })
+    }
+  }
+
+  function undoDeleteSheet(sheetName: string) {
     const sheet = AllSheets.value[sheetName]
     sheet?.forEach((deposit) => {
       const row = getRow(deposit.uid)
       if (row) {
-        row.resp = 'DELETED'
+        row.flag.delete = false
       }
     })
   }
@@ -84,11 +109,12 @@ export const useUtaStore = defineStore('uta', () => {
     Object.keys(sheets).forEach((sheetName) => {
       const book = utils.book_new()
       if (sheets[sheetName]) {
+        const receipt = createReceiptNumber(5)
         const data = sheets[sheetName].map((row) => {
           const ref = sheetName.includes('-') ? sheetName : `${sheetName}-1`
           return {
             reference: ref,
-            receipt: ref,
+            receipt,
             glAccount: row.merch.acct,
             amount: row.total,
             control: row.ctrl,
@@ -108,7 +134,9 @@ export const useUtaStore = defineStore('uta', () => {
     changeCtrl,
     getRow,
     deleteSheet,
+    undoDeleteSheet,
     deleteRow,
+    undoDeleteRow,
     removeRow,
     removeSheet,
     buildSheet,
