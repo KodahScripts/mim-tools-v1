@@ -18,13 +18,15 @@
         <AccountDisplay />
       </div>
     </div>
-    <div
-      class="mb-5"
-      v-if="UtaRawData"
-      v-for="sheetName in Object.keys(AllSheets)"
-      :key="sheetName"
-    >
-      <DepositCard :sheetName="sheetName" />
+    <div class="row">
+      <div
+        class="mb-5 col-lg-6"
+        v-if="UtaRawData"
+        v-for="sheetName in Object.keys(AllSheets)"
+        :key="sheetName"
+      >
+        <DepositCard :sheetName="sheetName" />
+      </div>
     </div>
   </div>
 </template>

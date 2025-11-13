@@ -19,11 +19,10 @@ enum UTA_COLUMN {
 interface UploadRow {
   reference: string
   receipt: string
-  glAccount: number
+  glAccount: string
   amount: number
   control: string
   description: string
-  found: boolean
 }
 
 interface Accounts {
