@@ -5,16 +5,16 @@
       type="text"
       :id="id"
       :placeholder="previousValue"
-      @change="handleChange($event)"
+      @change="handleChange(id, $event)"
       class="col"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import { useUtaStore } from '@/stores/uta'
+import { defineEmits } from 'vue'
 
-const props = defineProps<{
+defineProps<{
   id: string
   previousValue: string
   label?: {
@@ -23,12 +23,13 @@ const props = defineProps<{
   }
 }>()
 
-const store = useUtaStore()
-const { changeCtrl } = store
+const emit = defineEmits<{
+  (e: 'update:modelValue', value: string): void
+}>()
 
-const handleChange = (event: Event) => {
+const handleChange = (id: string, event: Event) => {
   if (event.target instanceof HTMLInputElement) {
-    changeCtrl(props.id, event.target.value)
+    emit('update:modelValue', { id, val: event.target.value })
   }
 }
 </script>

@@ -35,12 +35,22 @@
         </ValDisplayVert>
         <ValDisplayVert>
           <template #lbl>ACCOUNT</template>
-          <template #val>{{ row.merch.acct }}</template>
+          <template #val>
+            <EditInput
+              :id="row.uid"
+              :previousValue="row.merch.acct"
+              @update:model-value="() => handleAcctChange"
+            />
+          </template>
         </ValDisplayVert>
         <ValDisplayVert>
           <template #lbl>CONTROL</template>
           <template #val>
-            <EditInput :id="row.uid" :previousValue="row.ctrl" />
+            <EditInput
+              :id="row.uid"
+              :previousValue="row.ctrl"
+              @update:model-value="() => handleControlChange"
+            />
           </template>
         </ValDisplayVert>
         <div class="col-1 align-self-center">
@@ -73,9 +83,14 @@ import FileDocumentRemoveOutline from 'vue-material-design-icons/FileDocumentRem
 import ValDisplayVert from '../global/ValDisplayVert.vue'
 import EditInput from '../global/EditInput.vue'
 
+interface EditInputData {
+  id: string
+  val: string
+}
+
 const store = useUtaStore()
 const { AllSheets } = storeToRefs(store)
-const { deleteSheet, deleteRow, undoDeleteRow, undoDeleteSheet } = store
+const { deleteSheet, deleteRow, undoDeleteRow, undoDeleteSheet, changeCtrl, changeAcct } = store
 const props = defineProps<{
   sheetName: string
 }>()
@@ -83,6 +98,14 @@ const props = defineProps<{
 const rows = computed(() => {
   return AllSheets.value[props.sheetName]
 })
+
+function handleControlChange(data: EditInputData) {
+  changeCtrl(data.id, data.val)
+}
+
+function handleAcctChange(data: EditInputData) {
+  changeAcct(data.id, data.val)
+}
 </script>
 
 <style scoped>

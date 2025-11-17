@@ -47,6 +47,13 @@ export const useUtaStore = defineStore('uta', () => {
     }
   }
 
+  function changeAcct(uid: string, newAcct: string) {
+    const row = getRow(uid)
+    if (row) {
+      row.merch.acct = newAcct
+    }
+  }
+
   function deleteRow(uid: string) {
     const row = getRow(uid)
     if (row) {
@@ -132,6 +139,7 @@ export const useUtaStore = defineStore('uta', () => {
     UtaRawData,
     AllSheets,
     changeCtrl,
+    changeAcct,
     getRow,
     deleteSheet,
     undoDeleteSheet,
