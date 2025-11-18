@@ -7,33 +7,35 @@ const UPLOADHEADER = [
   'Description',
 ]
 
-enum DAILYCOLS {
-  DATE = 4,
-  BRAND = 8,
-  AMOUNT = 15,
-  SURCH = 16,
-  DEPT = 17,
-  INVOICE = 18,
-  STATUS = 7,
-}
-
-enum MULTICOLS {
-  DATE = 2,
-  BRAND = 4,
-  AMOUNT = 3,
-  SURCH = 99,
-  DEPT = 93,
-  INVOICE = 94,
-  CHAIN = 13,
-}
-
-enum UTA_COLUMN {
-  DATE = 1,
-  CHECK_NUMBER = 4,
-  TOTAL_AMOUNT = 6,
-  MERCHANT = 7,
-  RESPONSE = 15,
-  CONTROL = 21,
+const COLUMN = {
+  UTA: {
+    DATE: 1,
+    CHECK_NUMBER: 4,
+    TOTAL_AMOUNT: 6,
+    MERCHANT: 7,
+    RESPONSE: 15,
+    CONTROL: 21,
+  },
+  CREDIT: {
+    DAILY: {
+      DATE: 4,
+      BRAND: 8,
+      AMOUNT: 15,
+      SURCH: 16,
+      DEPT: 17,
+      INVOICE: 18,
+      STATUS: 7,
+    },
+    MULTI: {
+      DATE: 2,
+      BRAND: 4,
+      AMOUNT: 3,
+      SURCH: 99,
+      DEPT: 93,
+      INVOICE: 94,
+      CHAIN: 13,
+    },
+  },
 }
 
 interface UploadRow {
@@ -93,4 +95,4 @@ interface CreditDepositRow {
 }
 
 export type { Accounts, Account, UTADepositRow, UploadRow, UploadSheet, Merchant }
-export { UPLOADHEADER, UTA_COLUMN, DAILYCOLS, MULTICOLS }
+export { UPLOADHEADER, COLUMN }
