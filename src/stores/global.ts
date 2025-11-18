@@ -39,7 +39,7 @@ export const useGlobalStore = defineStore('global', () => {
   }
 
   function createReceiptNumber(numberOfDigits: number) {
-    const numberArr = []
+    const numberArr: Number[] = []
     while (numberArr.length < numberOfDigits) {
       numberArr.push(Math.floor(Math.random() * 10))
     }

@@ -2,7 +2,7 @@ import { ref, computed, type Ref } from 'vue'
 import { defineStore, storeToRefs } from 'pinia'
 import { utils, writeFile } from 'xlsx'
 import { useGlobalStore } from './global'
-import type { UTADepositRow, UploadSheet } from '@/utils/definitions'
+import type { UTADepositRow, UploadSheet } from '../utils/definitions'
 
 export const useUtaStore = defineStore('uta', () => {
   const globalStore = useGlobalStore()
@@ -113,11 +113,22 @@ export const useUtaStore = defineStore('uta', () => {
 
   function buildSheet() {
     const sheets = AllSheets.value
+    const deleteSheets: UTADepositRow[] = []
+    const printSheets: UTADepositRow[] = []
+    const deleteBook = utils.book_new()
+
     Object.keys(sheets).forEach((sheetName) => {
+      if (sheetName.includes('-DEL')) deleteSheets[sheetName] = sheets[sheetName]
+      else if (sheetName.includes('-DEN')) deleteSheets[sheetName] = sheets[sheetName]
+      else if (sheetName.includes('-REF')) deleteSheets[sheetName] = sheets[sheetName]
+      else printSheets[sheetName] = sheets[sheetName]
+    })
+
+    Object.keys(printSheets).forEach((sheetName) => {
       const book = utils.book_new()
-      if (sheets[sheetName]) {
+      if (printSheets[sheetName]) {
         const receipt = createReceiptNumber(5)
-        const data = sheets[sheetName].map((row) => {
+        const data = printSheets[sheetName].map((row: UTADepositRow) => {
           const ref = sheetName.includes('-') ? sheetName : `${sheetName}-1`
           return {
             reference: ref,
@@ -133,6 +144,27 @@ export const useUtaStore = defineStore('uta', () => {
       }
       writeFile(book, `${selectedStore.value}_${sheetName}.csv`)
     })
+
+    Object.keys(deleteSheets).forEach((sheetName) => {
+      if (deleteSheets[sheetName]) {
+        const receipt = createReceiptNumber(5)
+        const data = deleteSheets[sheetName].map((row: UTADepositRow) => {
+          const ref = sheetName.includes('-') ? sheetName : `${sheetName}-1`
+          return {
+            reference: ref,
+            receipt,
+            glAccount: row.merch.acct,
+            amount: row.total,
+            control: row.ctrl,
+            description: '',
+          }
+        })
+        const sheet = utils.json_to_sheet(data)
+        utils.book_append_sheet(deleteBook, sheet, sheetName)
+      }
+    })
+    const today = new Date().toDateString()
+    writeFile(deleteBook, `${selectedStore.value}_${today}.xlsx`)
   }
 
   return {
