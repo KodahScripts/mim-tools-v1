@@ -127,7 +127,7 @@ export const useUtaStore = defineStore('uta', () => {
     Object.keys(printSheets).forEach((sheetName) => {
       const book = utils.book_new()
       if (printSheets[sheetName]) {
-        const receipt = createReceiptNumber(5)
+        const receipt = createReceiptNumber(8)
         const data = printSheets[sheetName].map((row: UTADepositRow) => {
           const ref = sheetName.includes('-') ? sheetName : `${sheetName}-1`
           return {
