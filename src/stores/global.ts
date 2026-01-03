@@ -14,6 +14,11 @@ const ACCT: Account = {
     fixed: '2250',
     fee: '3324',
   },
+  KIA: {
+    vari: '3020',
+    fixed: '2040',
+    fee: '3227'
+  }
 }
 
 export const useGlobalStore = defineStore('global', () => {
